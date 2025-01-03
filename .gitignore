@@ -1,0 +1,10 @@
+# Ignore all files in subfolders without extensions
+**/*
+!**/*.*
+!*/
+
+
+# Ignore the not wanted examples! If you want to check them, then just go to the AoC 2024 page! :D 
+**/inputFile.txt
+**/simpleExample.txt
+.vscode/**
