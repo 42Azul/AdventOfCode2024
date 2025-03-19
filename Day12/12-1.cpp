@@ -19,7 +19,7 @@ pair<long, long> exploreRegion(int x, int y, char regChar){
     //cout << "Exploring region at (" << x << ", " << y << ") with character: " << regChar << endl;
     if(!isCharAt(x, y, regChar) || visited[y][x] == true ) return make_pair(0, 0);
     visited[y][x] = true;
-    long totalArea = 0;
+    long totalArea = 1;
     long totalPerimeter = 0;
     for(pair<long,long> dir: directions){
         long newX = x + dir.first;
@@ -29,7 +29,7 @@ pair<long, long> exploreRegion(int x, int y, char regChar){
         totalPerimeter +=  areaAndPerimeter.second + (!isCharAt(newX, newY, regChar));
     }
       
-    return make_pair(totalArea +1, totalPerimeter);
+    return make_pair(totalArea, totalPerimeter);
 }
 
 

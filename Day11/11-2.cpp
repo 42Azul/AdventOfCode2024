@@ -6,7 +6,6 @@ struct Node{
     Node* left;
     Node* right;
     long value;
-    long maxDepth;
     unordered_map<long, long> depthMap;
 };
 
@@ -45,14 +44,12 @@ pair<long, long> getSplit(long n, long digits){
     return make_pair(firstPart, secondPart);
 }
 
-
 void developNode(Node* node, long depth);
 
 Node* findAndDevelopValue(long value, long depth){
     //cout << "Finding and developing value: " << value << " and depth: " << depth << endl;
     Node* newNode = new Node();
     newNode->value = value;
-    newNode->maxDepth = 0;
     auto it = nodeSet.find(newNode);
     if(it!= nodeSet.end()){
         newNode = *it;
@@ -78,7 +75,6 @@ void developNode(Node* node, long depth){
     if(node->left != NULL || node->right != NULL){
             if(node->left != NULL) developNode(node->left, depth-1);
             if(node-> right != NULL) developNode(node->right, depth-1);
-            node->maxDepth = depth;
             node->depthMap[depth] = node->left->depthMap[depth-1] + ((node->right==NULL) ? 0 : node->right->depthMap[depth-1]);
     }
     else{
@@ -114,7 +110,6 @@ int main(){
     auto it = numbers.begin();
     long res = 0;
     while(it!=numbers.end()){
-        cout << "--------------------------------" << "VALUE FOR NUMBER " << *it << endl;
         Node* node = findAndDevelopValue(*it, 75);
         long depth = node->depthMap[75];
         cout << depth << endl;
