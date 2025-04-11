@@ -4,12 +4,12 @@
 **Difficulty:** 🌗🌑🌑🌑🌑  
 
 **Approach & Solution:**  
-This problem was all about pathfinding, but with a twist—movement wasn’t just about distance, but also about direction changes incurring a heavy penalty. The goal was to navigate the maze efficiently while minimizing both movement and rotations.
+This problem was all about pathfinding, but with a twist—movement was not just about distance, but also about direction changes incurring a heavy penalty. The goal was to navigate the maze efficiently while minimizing both movement and rotations.
 
 <details>  
 <summary>Detailed Explanation (Click to expand)</summary>  
 
-1. **State Representation**: Instead of just tracking positions, I kept track of the reindeer's facing direction. This was crucial because turning 90 degrees added 1000 points to the cost.  
+1. **State Representation**: Instead of just tracking positions, I kept track of the facing direction. This was crucial because turning 90 degrees added 1000 points to the cost.  
 
 2. **Priority Queue (Dijkstra’s Algorithm)**: Since we were looking for the shortest weighted path, a priority queue (min-heap) was the best choice. The queue stored tuples of `(cost, position, direction)`, ensuring the lowest-cost path was explored first.  
 
@@ -19,8 +19,7 @@ This problem was all about pathfinding, but with a twist—movement wasn’t jus
    - Moving into a wall (`#`) was not allowed.  
 
 4. **Tracking Costs**:  
-   - A `map<char, long>` was maintained for each grid cell to store the best-known cost for each direction.  
-   - If a newly found cost was lower than a previously recorded cost, it was updated, and the new state was pushed into the priority queue.  
+   - A `map<char, long>` was maintained for each grid cell to store the best-known cost for each direction. (Basic Dijkstra logic)
 
 5. **Termination**: The algorithm stopped once all potential paths were explored, and the minimum cost for reaching `E` in any direction was recorded.  
 
@@ -57,6 +56,6 @@ Now the problem changed—rather than just finding the optimal path, we needed t
 ---
 
 ## Conclusions and Thoughts  
-This was a really cool take on shortest path problems! The penalty for turning added an extra layer of complexity that made it feel more like a real-world navigation challenge. Dijkstra’s algorithm was the obvious choice, but tracking movement direction as part of the state was the real key.  
+This was a  take on the usual path findinf problems. Dijkstra’s algorithm was the obvious choice, and just adding the facing direction as another parameter/node.
 
-Part 2 was fun because it forced me to think in reverse—finding not just *a* solution, but *all* optimal solutions. The best part? Seeing how the paths overlapped and how only certain tiles were truly "important" to the shortest path. Definitely a solid maze challenge!
+Part 2 was a bit different because enforced some reverse—finding not just *a* solution, but *all* optimal solutions. In the beginning I forgot about the overlapping solutions, which was the only specific thing not to get dupes in the final sum.

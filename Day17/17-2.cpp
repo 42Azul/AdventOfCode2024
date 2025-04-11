@@ -14,15 +14,15 @@ vector<unsigned long long int> code;
 
 int main(){
     code = {2,4,1,3,7,5,1,5,0,3,4,2,5,5,3,0};
-    //We made the manual process up to the third character, j = 2
-    vector<unsigned long long int> increments_first = {703,373,3,61,1,66,520,1024,373,3,61,1,66,438,82,1024,373,3,61,1,66,520,353,4,60,4,1,59,64,64,64,64,64,64,64,5,59,31,33,64,64,64,64,84,3,61,1,66,438,82, 321};
 
-    //unsigned long long int Abase = 35184372088832;
+    //As the element A is checked against modulo 8, we can do iterative process
+    //on the last 3 bits and build the result 8 bits per 8 bits.
+    vector<unsigned long long int> increments_first = {1};
 
     bool isEqual = false;
     unsigned long long int Abase, AbasePrev;
 
-    for(long long unsigned int digit = 3; digit <= code.size() && isEqual==false; digit++){
+    for(long long unsigned int digit = 1; digit <= code.size() && isEqual==false; digit++){
         cout << "Starting with digit " << digit << endl;
         vector<unsigned long long int> increments_next;
         unsigned long long int i = 0;

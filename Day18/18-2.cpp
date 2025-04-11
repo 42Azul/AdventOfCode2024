@@ -1,101 +1,131 @@
-#include<bits/stdc++.h>
-#include<queue>
-#include<unordered_map>
+import React, { useEffect, useState } from "react";
+import MapView from "../components/MapView";
+import CountryStatsPanel from "../components/CountryStatsPanel";
+import HistoryPanel from "../components/HistoryPanel";
+import HamburgerMenu from "../components/HamburgerMenu";
+import Sidebar from "../components/Sidebar";
+import { City, CityHistory } from "../data/Cities";
 
-using namespace std;
+const Home: React.FC = () => {
+  // States
+  const [totalPop, setTotalPop] = useState(0);
+  const [selectedCities, setSelectedCities] = useState<City[]>([]);
+  const [history, setHistory] = useState<CityHistory[]>([]);
+  const [countryStats, setCountryStats] = useState<Record<string, number>>({});
+  const [menuOpen, setMenuOpen] = useState(false);
 
-namespace std{
-    pair<int, int> operator+(const pair<int, int> & a, const pair<int, int> & b) {
-        return {a.first + b.first, a.second + b.second};
+  // Toggles
+  const [showCountryStats, setShowCountryStats] = useState(false);
+  const [showHeatmap, setShowHeatmap] = useState(false);
+  const [showMarkers, setShowMarkers] = useState(true);
+
+  // History search
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Load total population from API
+  useEffect(() => {
+    fetch("http://localhost:3000/api/cities")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.maxAccPop) {
+          setTotalPop(data.maxAccPop);
+        } else {
+          console.error("Unexpected /api/cities response:", data);
+        }
+      })
+      .catch((err) => console.error(err));
+  }, []);
+
+  const handleDropCity = () => {
+    if (totalPop <= 0) {
+      console.error("Total population not loaded yet.");
+      return;
     }
-}
+    const randomVal = Math.floor(Math.random() * totalPop);
+    const url = `http://localhost:3000/api/city?val=${randomVal}`;
 
+    fetch(url)
+      .then((res) => res.json())
+      .then((city: City) => {
+        // Add to selectedCities
+        setSelectedCities((prev) => [...prev, city]);
 
-long WIDTH = 70;
-long HEIGHT = 70;
+        // Update history with timestamp
+        const newEntry: CityHistory = { ...city, date: Date.now() };
+        setHistory((prev) => [newEntry, ...prev]);
 
+        // Update country stats
+        setCountryStats((prevStats) => {
+          const count = prevStats[city.country] || 0;
+          return { ...prevStats, [city.country]: count + 1 };
+        });
+      })
+      .catch((err) => console.error(err));
+  };
 
-// long WIDTH = 6;
-// long HEIGHT = 6;
+  return (
+    <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
+      {/* Botón Hamburguesa en la esquina superior izquierda */}
+      <div style={{ position: "absolute", top: 10, left: 10, zIndex: 1100 }}>
+        <HamburgerMenu onToggle={() => setMenuOpen(!menuOpen)} />
+      </div>
 
-struct hash_pair {
-    template <class T1, class T2>
-    size_t operator()(const pair<T1, T2>& p) const
-    {
-        // Hash the first element
-        size_t hash1 = hash<T1>{}(p.first);
-        // Hash the second element
-        size_t hash2 = hash<T2>{}(p.second);
-        // Combine the two hash values
-        return hash1
-               ^ (hash2 + 0x9e3779b9 + (hash1 << 6)
-                  + (hash1 >> 2));
-    }
+      {/* Sidebar con las opciones */}
+      <Sidebar isOpen={menuOpen}>
+        <button onClick={handleDropCity} style={{ marginBottom: "0.5rem" }}>
+          Select a Random Person
+        </button>
+
+        <button
+          onClick={() => setShowCountryStats(!showCountryStats)}
+          style={{ marginBottom: "0.5rem" }}
+        >
+          {showCountryStats ? "Hide" : "Show"} Country Stats
+        </button>
+
+        <button
+          onClick={() => setShowHeatmap(!showHeatmap)}
+          style={{ marginBottom: "0.5rem" }}
+        >
+          {showHeatmap ? "Disable Heatmap" : "Enable Heatmap"}
+        </button>
+
+        <button
+          onClick={() => setShowMarkers(!showMarkers)}
+          style={{ marginBottom: "1rem" }}
+        >
+          {showMarkers ? "Hide Markers" : "Show Markers"}
+        </button>
+
+        {/* Búsqueda en el historial (por ciudad) */}
+        <input
+          type="text"
+          placeholder="Search City..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ width: "100%", marginBottom: "0.5rem" }}
+        />
+      </Sidebar>
+
+      {/* Panel con las estadísticas por país */}
+      <CountryStatsPanel show={showCountryStats} countryStats={countryStats} />
+
+      {/* Historial de selecciones */}
+      <HistoryPanel
+        history={history}
+        showSearch={false} // el input está en el Sidebar
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+      />
+
+      {/* El Mapa principal */}
+      <MapView
+        selectedCities={selectedCities}
+        showHeatmap={showHeatmap}
+        showMarkers={showMarkers}
+      />
+    </div>
+  );
 };
 
-unordered_map<pair<int, int>, bool, hash_pair> isBlock;
-
-unordered_map<pair<int, int>, int, hash_pair> distances;
-
-unordered_map<pair<int, int>, bool, hash_pair> isSeen;
-
-
-vector<pair<int, int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-
-
-bool comparePairs(const pair<int, pair<int, int>>& a, const pair<int,pair<int, int>>& b){ return a.first > b.first;};
-
-priority_queue<pair<int, pair<int, int>>, vector<pair<int, pair<int, int>>>, decltype(&comparePairs)> minHeap(&comparePairs);
-
-
-bool inRange(pair<int, int> a){
-    return a.first >= 0 && a.first <= WIDTH && a.second >= 0 && a.second <= HEIGHT;
-}
-
-
-
-vector<pair<int, int>> getNeighbors(pair<int, int> position){
-    vector<pair<int, int>> neighbors;
-    for(pair<int, int> direction : directions) {
-        if(inRange(position+direction) && !isBlock[position + direction]){
-            neighbors.push_back(position+direction);
-        }
-
-    }
-    return neighbors;
-}
-
-
-
-int main(){
-    int i = 3035;
-    pair<int, int> blockPosition;
-    while(i--){
-        cin>>blockPosition.first;
-        cin.ignore();
-        cin>>blockPosition.second;
-        isBlock[blockPosition] = true;
-    }
-
-    minHeap.push({0, {0,0}});
-    distances[{0,0}] = 0;
-    while(!minHeap.empty()){
-        pair<int, int> currentPosition = minHeap.top().second;
-        minHeap.pop();
-        if(isSeen[currentPosition]) continue;
-        isSeen[currentPosition] = true;
-        int currentDistance = distances[currentPosition];
-        vector<pair<int, int>> neighbors = getNeighbors(currentPosition);
-        cout << "Current position: " << currentPosition.first << " " << currentPosition.second << endl;
-        for(pair<int, int> neighbor : neighbors){
-            cout << "Neighbor : " << neighbor.first << " " << neighbor.second << endl;
-            int neighborDistance = currentDistance + 1;
-            int currentDistance = distances[neighbor];
-            if(currentDistance == 0 || neighborDistance < distances[neighbor]){
-                distances[neighbor] = neighborDistance;
-                minHeap.push({neighborDistance, neighbor});
-            }
-        }
-    }
-    cout  << distances[{WIDTH, HEIGHT}] << endl;
-}
+export default Home;

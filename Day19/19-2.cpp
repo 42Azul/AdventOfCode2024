@@ -32,6 +32,8 @@ long countWays(string &toCheck, Trie* root) {
     cout << " size is " << n << endl;
     for(int i = 0; i < n; i++) {
         Trie* node = root;
+        //We try to check if the groups of characters from 0 to i can be formed
+        //either grouped either split using a DP approach
         for(int j = i; j >= 0; j--) {
             char c = toCheck[j];
             node = node->children[c];
